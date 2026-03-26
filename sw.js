@@ -1,9 +1,9 @@
-const CACHE_NAME = 'esp-calc-v1';
+const CACHE_NAME = 'esp-calc-v2';
 
 // Files to cache for offline use
 const ASSETS_TO_CACHE = [
   './',
-  './index.html', // Note: ensure your HTML file is named index.html, or update this line
+  './index.html',
   './manifest.json',
   './icon.png',
   'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
