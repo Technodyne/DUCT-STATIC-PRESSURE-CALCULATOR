@@ -1,10 +1,10 @@
 {
-  "name": "Duct ESP Calculator",
+  "name": "Critical Circuit ESP Calculator",
   "short_name": "ESP Calc",
-  "description": "DUCT ESP Calculator.",
-  "start_url": "./",
+  "description": "Professional HVAC Duct ESP Calculator using ASHRAE standards.",
+  "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#f0f2f5",
+  "background_color": "#f9f8f6",
   "theme_color": "#0056b3",
   "icons": [
     {
