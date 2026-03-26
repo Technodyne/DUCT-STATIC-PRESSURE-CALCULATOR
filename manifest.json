@@ -1,0 +1,17 @@
+{
+  "name": "Duct ESP Calculator",
+  "short_name": "ESP Calc",
+  "description": "DUCT ESP Calculator.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f0f2f5",
+  "theme_color": "#0056b3",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

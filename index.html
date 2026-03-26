@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Critical Circuit ESP Calculator (Pro)</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0056b3">
+    <link rel="apple-touch-icon" href="icon.png">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        :root { --primary: #0056b3; --accent: #004494; --bg: #f0f2f5; --card: #ffffff; --border: #ced4da; --sidebar: #2c3e50; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: #212529; padding: 0; margin: 0; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Layout */
+        .app-wrapper { display: flex; flex: 1; overflow: hidden; }
+        .sidebar { width: 280px; background: var(--sidebar); color: white; display: flex; flex-direction: column; padding: 20px; box-shadow: 2px 0 10px rgba(0,0,0,0.1); z-index: 10; }
+        .main-content { flex: 1; padding: 30px; overflow-y: auto; background: var(--bg); }
+        .container { background: var(--card); padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 1200px; margin: 0 auto; }
+
+        /* Sidebar Elements */
+        .section-list { flex: 1; overflow-y: auto; margin-bottom: 20px; border-top: 1px solid #4a6fa5; border-bottom: 1px solid #4a6fa5; }
+        .section-btn { 
+            display: flex; justify-content: space-between; align-items: center;
+            width: 100%; padding: 12px 15px; background: transparent; color: #ecf0f1; 
+            border: none; border-bottom: 1px solid #34495e; cursor: pointer; text-align: left; transition: 0.2s; 
+        }
+        .section-btn:hover { background: #34495e; }
+        .section-btn.active { background: var(--primary); border-left: 4px solid #4dabf7; font-weight: bold; }
+        
+        /* Action Buttons */
+        .btn-new { background: #27ae60; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px; }
+        .btn-new:hover { background: #219150; }
+        
+        .btn-action { flex: 1; background: #34495e; color: #ecf0f1; border: 1px solid #4a6fa5; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
+        .btn-action:hover { background: #4a6fa5; }
+
+        /* Header */
+        h2 { margin-top: 0; color: var(--primary); border-bottom: 2px solid #dee2e6; padding-bottom: 15px; }
+        .badge { background: #343a40; color: #fff; padding: 6px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: normal; }
+
+        /* Grid */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .section-title { font-size: 1.2rem; font-weight: bold; color: var(--sidebar); margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+
+        /* Forms */
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.85rem; color: #555; }
+        input, select { width: 100%; padding: 9px; border: 1px solid var(--border); border-radius: 4px; margin-bottom: 12px; font-size: 0.95rem; box-sizing: border-box; }
+        input:focus, select:focus { outline: 2px solid var(--primary); border-color: transparent; }
+
+        /* Special Boxes */
+        .stats-box { background: #212529; color: #fff; padding: 15px; border-radius: 6px; font-size: 0.9rem; }
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .stat-val { font-weight: bold; color: #4dabf7; }
+        .warning { color: #ff6b6b; font-size: 0.85rem; margin-top: 8px; display: none; }
+
+        /* Fittings List */
+        .fit-container { border: 1px solid #dee2e6; height: 250px; overflow-y: auto; background: #fff; border-radius: 4px; padding: 5px; }
+        .fit-item { background: #f8f9fa; padding: 8px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e9ecef; font-size: 0.85rem; }
+        
+        /* Buttons */
+        button { cursor: pointer; border-radius: 4px; font-weight: 600; border: none; transition: 0.2s; }
+        .btn-add { background: #28a745; color: white; padding: 8px 15px; }
+        .btn-del { background: white; border: 1px solid #dc3545; color: #dc3545; padding: 2px 8px; font-size: 0.75rem; }
+        .btn-remove-sec { color: #ff6b6b; background: none; font-size: 1.2rem; font-weight: bold; padding: 0 5px; }
+        .btn-remove-sec:hover { color: red; }
+
+        /* Results Footer */
+        .footer-bar { background: white; border-top: 1px solid #ccc; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .total-display { font-size: 1.5rem; font-weight: bold; color: var(--primary); }
+        .btn-pdf { background: #6610f2; color: white; padding: 12px 25px; font-size: 1rem; }
+        .btn-pdf:hover { background: #520dc2; }
+
+        /* PDF Overlay */
+        #pdf-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; overflow: auto; padding-top: 20px;}
+        #printTemplate { width: 210mm; min-height: 297mm; background: white; padding: 15mm; font-family: 'Times New Roman', serif; box-sizing: border-box; margin: auto; }
+        .rpt-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 10pt; }
+        .rpt-table th, .rpt-table td { border: 1px solid #000; padding: 5px; text-align: left; }
+        .rpt-table th { background: #f0f0f0; }
+        .rpt-sec-header { background: #e9ecef; font-weight: bold; padding: 5px; margin-top: 10px; border: 1px solid #000; border-bottom: none; }
+    </style>
+</head>
+<body>
+
+<div class="app-wrapper">
+    <div class="sidebar">
+        <h3 style="margin-top:0; font-size:1rem; color:#adb5bd; text-transform:uppercase; letter-spacing:1px;">Project File</h3>
+        <div style="display:flex; gap:10px; margin-bottom:20px;">
+            <button class="btn-action" onclick="saveProject()">💾 Save</button>
+            <button class="btn-action" onclick="triggerLoad()">📂 Load</button>
+            <input type="file" id="loadInput" style="display:none" accept=".json" onchange="loadProject(this)">
+        </div>
+
+        <h3 style="margin-top:0; border-top:1px solid #4a6fa5; padding-top:20px;">Circuit Path</h3>
+        <button class="btn-new" onclick="addNewSection()">+ Add Duct Section</button>
+        <div class="section-list" id="sectionList">
+            </div>
+        <div style="font-size:0.8rem; color:#adb5bd; text-align:center;">
+            Drag/Sort logic calculated sequentially.<br>Shape applies to all.
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="container">
+            <h2>
+                <span id="headerTitle">Critical Circuit Editor</span>
+                <span class="badge">ASHRAE SI</span>
+            </h2>
+
+            <div style="display:flex; gap:15px; margin-bottom:20px; padding:15px; background:#fff3cd; border:1px solid #ffeeba; border-radius:6px; flex-wrap: wrap;">
+                <div style="flex:2; min-width: 200px;"><label>Project Name</label><input type="text" id="projName" value="Untitled Project" style="margin:0;"></div>
+                <div style="flex:1; min-width: 150px;"><label>Circuit Ref</label><input type="text" id="circuitRef" value="Index Run 01" style="margin:0;"></div>
+                
+                <div style="flex:1; min-width: 150px;"><label>Prepared By</label><input type="text" id="preparedBy" value="Engineer" style="margin:0;"></div>
+                
+                <div style="flex:1; min-width: 150px; background: white; padding: 5px; border-radius: 4px; border: 1px solid #e0e0e0;">
+                    <label style="color:#0056b3;">Duct Shape (All Sections)</label>
+                    <select id="globalShape" onchange="updateGlobalShape()" style="margin:0; border-color:#0056b3;">
+                        <option value="rect">Rectangular</option>
+                        <option value="round">Round</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="editorArea">
+                <div class="section-title">
+                    <span id="activeSecName">Section 1</span>
+                    <input type="text" id="secNameInput" placeholder="Rename (e.g. Main Duct)" style="width:250px; margin:0;" onchange="updateSecName()">
+                </div>
+
+                <div class="grid-2">
+                    <div>
+                        <div style="background:#f8f9fa; padding:15px; border-radius:6px; border:1px solid #e9ecef;">
+                            <label>Duct Parameters</label>
+                            <div style="display:flex; gap:10px;">
+                                <div style="flex:1"><label>Airflow (L/s)</label><input type="number" id="flow" oninput="saveCurrentSection()"></div>
+                                <div style="flex:1"><label>Length (m)</label><input type="number" id="length" oninput="saveCurrentSection()"></div>
+                            </div>
+                            
+                            <div id="rectDims" style="display:flex; gap:10px;">
+                                <div style="flex:1"><label>Width (mm)</label><input type="number" id="width" placeholder="W" oninput="saveCurrentSection()"></div>
+                                <div style="flex:1"><label>Height (mm)</label><input type="number" id="height" placeholder="H" oninput="saveCurrentSection()"></div>
+                            </div>
+                            <div id="roundDims" style="display:none;">
+                                <label>Diameter (mm)</label><input type="number" id="diameter" placeholder="Dia" oninput="saveCurrentSection()">
+                            </div>
+
+                            <label style="margin-top:10px;">Material / Roughness</label>
+                            <select id="material" onchange="updateRoughness(); saveCurrentSection();">
+                                <option value="0.09">Galvanized Steel (0.09)</option>
+                                <option value="0.12">Kitchen Black Steel (0.12)</option>
+                                <option value="1.5">Flexible Duct (1.5)</option>
+                                <option value="0.05">Aluminum/SS (0.05)</option>
+                                <option value="3.0">Concrete Shaft (3.0)</option>
+                            </select>
+                        </div>
+
+                        <div class="stats-box" style="margin-top:15px;">
+                            <div class="stat-row"><span>Velocity:</span> <span id="dispVel" class="stat-val">-</span></div>
+                            <div class="stat-row"><span>Vel. Pressure:</span> <span id="dispPv" class="stat-val">-</span></div>
+                            <div class="stat-row"><span>Friction Rate:</span> <span id="dispRate" class="stat-val">-</span></div>
+                            <div class="stat-row"><span>Section Friction:</span> <span id="dispSecFric" class="stat-val" style="color:#ffd43b">-</span></div>
+                            <div id="velWarning" class="warning">⚠️ Low Velocity (< 2.5 m/s)</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div style="background:#f1f3f5; padding:15px; border-radius:6px; border:1px solid #dee2e6;">
+                            <label>Section Fittings (ASHRAE Comprehensive)</label>
+                            <div style="display:flex; gap:5px; margin-bottom:10px;">
+                                <select id="fitSelect" style="margin-bottom:0;"></select>
+                                <input type="number" id="fitQty" value="1" style="width:60px; margin-bottom:0;">
+                                <button class="btn-add" onclick="addFitting()">Add</button>
+                            </div>
+                            <div class="fit-container" id="fitList"></div>
+                            <div style="text-align:right; margin-top:5px; font-weight:bold;">
+                                Section Dynamic Loss: <span id="dispSecDyn" style="color:#d63384">- Pa</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> <div style="margin-top:30px; border-top:2px solid #eee; padding-top:20px;">
+                <label style="font-size:1.1rem; color:#333;">3. Equipment (Entire Circuit)</label>
+                <div style="background:#fff; border:1px solid #ccc; padding:15px; display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;">
+                    <div><label>Equipment 1</label><input type="text" id="eqName1" placeholder="e.g. AHU Coil"><input type="number" id="eqVal1" placeholder="Pa" oninput="calculateGlobal()"></div>
+                    <div><label>Equipment 2</label><input type="text" id="eqName2" placeholder="e.g. Filter"><input type="number" id="eqVal2" placeholder="Pa" oninput="calculateGlobal()"></div>
+                    <div><label>Equipment 3</label><input type="text" id="eqName3" placeholder="e.g. VAV Box"><input type="number" id="eqVal3" placeholder="Pa" oninput="calculateGlobal()"></div>
+                    <div><label>Equipment 4</label><input type="text" id="eqName4" placeholder="e.g. Attenuator"><input type="number" id="eqVal4" placeholder="Pa" oninput="calculateGlobal()"></div>
+                    <div><label>Equipment 5</label><input type="text" id="eqName5" placeholder="e.g. Louver"><input type="number" id="eqVal5" placeholder="Pa" oninput="calculateGlobal()"></div>
+                    <div><label>Equipment 6</label><input type="text" id="eqName6" placeholder="e.g. Other"><input type="number" id="eqVal6" placeholder="Pa" oninput="calculateGlobal()"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="footer-bar">
+    <div>
+        <div style="font-size:0.9rem; color:#666;">Total Critical Circuit ESP</div>
+        <div class="total-display" id="globalTotal">0 Pa</div>
+    </div>
+    <button class="btn-pdf" onclick="generateReport()">📄 Generate Detailed PDF Report</button>
+</div>
+
+<div id="pdf-overlay">
+    <div id="printTemplate">
+        <div style="border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:20px; display:flex; justify-content:space-between;">
+            <div>
+                <h1 style="margin:0; font-size:20pt; color:#0056b3;">Critical Circuit Analysis</h1>
+                <div style="font-size:11pt;">ASHRAE Darcy-Weisbach Method</div>
+            </div>
+            <div style="text-align:right;">
+                <div id="rptProjName" style="font-weight:bold;">-</div>
+                <div id="rptRef">-</div>
+                <div id="rptPrepared" style="font-size:10pt;">-</div>
+                <div id="rptDate" style="font-size:9pt; color:#666;">-</div>
+            </div>
+        </div>
+
+        <div id="rptBody"></div>
+
+        <div style="margin-top:20px; page-break-inside:avoid;">
+            <div style="font-weight:bold; background:#eee; padding:5px; border:1px solid #000;">EQUIPMENT & TOTALS</div>
+            <table class="rpt-table">
+                <tbody id="rptEquipBody"></tbody>
+            </table>
+            
+            <div style="border:2px solid #000; padding:15px; margin-top:10px;">
+                <table style="width:100%;">
+                    <tr><td>Sum of Section Friction:</td><td align="right" id="rptSumFric">0 Pa</td></tr>
+                    <tr><td>Sum of Section Fittings:</td><td align="right" id="rptSumDyn">0 Pa</td></tr>
+                    <tr><td>Sum of Equipment:</td><td align="right" id="rptSumEquip">0 Pa</td></tr>
+                    <tr><td colspan="2"><hr></td></tr>
+                    <tr><td style="font-size:16pt; font-weight:bold;">TOTAL CIRCUIT ESP:</td><td align="right" style="font-size:16pt; font-weight:bold;" id="rptSumTotal">0 Pa</td></tr>
+                </table>
+            </div>
+            <div style="font-size:8pt; text-align:center; color:#666; margin-top:20px;">
+                Calculated per ASHRAE Fundamentals. Air Density 1.204 kg/m³. Swamee-Jain Friction Factor.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- FULL ASHRAE DATABASE ---
+    const fittingsDB = {
+        "ELBOWS - RECTANGULAR": [
+            { name: "Elbow 90° Smooth Radius (r/D=1.5)", c: 0.28 },
+            { name: "Elbow 90° Standard Radius (r/D=1.0)", c: 0.35 },
+            { name: "Elbow 90° Short Radius (r/D=0.6)", c: 0.58 },
+            { name: "Elbow 90° Mitered (Single Vane)", c: 0.15 },
+            { name: "Elbow 90° Mitered (Double Vanes)", c: 0.11 },
+            { name: "Elbow 90° Mitered (No Vanes)", c: 1.20 },
+            { name: "Elbow 45° Smooth Radius", c: 0.12 },
+            { name: "Elbow 45° Mitered", c: 0.34 },
+            { name: "Offset (Type A - Smooth Z)", c: 0.30 },
+            { name: "Offset (Type B - Mitered)", c: 1.35 }
+        ],
+        "ELBOWS - ROUND": [
+            { name: "Elbow Round 90° Die Stamped", c: 0.24 },
+            { name: "Elbow Round 90° Pleated/Adjustable", c: 0.52 },
+            { name: "Elbow Round 90° Segmented (3-Gore)", c: 0.42 },
+            { name: "Elbow Round 90° Segmented (5-Gore)", c: 0.22 },
+            { name: "Elbow Round 90° Mitered", c: 1.15 },
+            { name: "Elbow Round 45° Smooth", c: 0.14 }
+        ],
+        "TEES & JUNCTIONS": [
+            { name: "Tee, Converging (Branch to Main) - 90°", c: 0.65 },
+            { name: "Tee, Converging (Branch to Main) - 45° Entry", c: 0.35 },
+            { name: "Tee, Diverging (Main to Branch) - Standard", c: 1.30 },
+            { name: "Tee, Diverging (Main to Branch) - Conical", c: 0.55 },
+            { name: "Tee, Diverging (Main to Branch) - 45° Shoe", c: 0.28 },
+            { name: "Tee, Straight Through (Main Line)", c: 0.10 },
+            { name: "Wye 45° (Symmetrical)", c: 0.30 },
+            { name: "Bullhead Tee (Flow Split 50/50)", c: 1.60 }
+        ],
+        "TRANSITIONS & ENTRIES": [
+            { name: "Transition (Expansion) 15° Angle", c: 0.12 },
+            { name: "Transition (Expansion) 30° Angle", c: 0.30 },
+            { name: "Transition (Expansion) Abrupt", c: 0.55 },
+            { name: "Transition (Contraction) 30° Angle", c: 0.08 },
+            { name: "Transition (Contraction) Abrupt", c: 0.35 },
+            { name: "Entry, Bellmouth", c: 0.05 },
+            { name: "Entry, Conical", c: 0.18 },
+            { name: "Entry, Sharp Edged", c: 0.50 }
+        ],
+        "DAMPERS & OBSTRUCTIONS": [
+            { name: "VCD (Opposed Blade - Open)", c: 0.32 },
+            { name: "VCD (Parallel Blade - Open)", c: 0.45 },
+            { name: "Butterfly Damper (Round)", c: 0.26 },
+            { name: "Fire Damper (Blades out of stream)", c: 0.18 },
+            { name: "Fire Damper (Blades in stream)", c: 0.65 },
+            { name: "Non-Return / Backdraft Damper", c: 0.75 },
+            { name: "Screen (Wire Mesh)", c: 0.60 },
+            { name: "Louver (Intake/Exhaust)", c: 1.80 }
+        ]
+    };
+
+    // --- STATE ---
+    let sections = [];
+    let activeIdx = 0;
+    let globalShape = 'rect';
+
+    // --- INIT ---
+    window.onload = function() {
+        populateFitSelect();
+        addNewSection();
+    };
+
+    function populateFitSelect() {
+        const sel = document.getElementById('fitSelect');
+        sel.innerHTML = "";
+        for (const [category, items] of Object.entries(fittingsDB)) {
+            const group = document.createElement('optgroup');
+            group.label = category;
+            items.forEach((item, index) => {
+                const opt = document.createElement('option');
+                opt.value = JSON.stringify({cat: category, idx: index});
+                opt.text = `${item.name} [C=${item.c}]`;
+                group.appendChild(opt);
+            });
+            sel.appendChild(group);
+        }
+    }
+
+    // --- SECTION MANAGEMENT ---
+    function addNewSection() {
+        const newSec = {
+            id: Date.now(),
+            name: `Section ${sections.length + 1}`,
+            flow: 1000,
+            length: 10,
+            width: 500,
+            height: 400,
+            diameter: 300,
+            roughness: 0.09,
+            fittings: []
+        };
+        sections.push(newSec);
+        activeIdx = sections.length - 1;
+        renderSidebar();
+        loadSectionToEditor();
+        calculateGlobal();
+    }
+
+    function renderSidebar() {
+        const list = document.getElementById('sectionList');
+        list.innerHTML = "";
+        sections.forEach((sec, i) => {
+            const btn = document.createElement('div');
+            btn.className = `section-btn ${i === activeIdx ? 'active' : ''}`;
+            btn.innerHTML = `
+                <span>${i+1}. ${sec.name}</span>
+                ${sections.length > 1 ? `<span class="btn-remove-sec" onclick="removeSection(event, ${i})">×</span>` : ''}
+            `;
+            btn.onclick = (e) => { if(e.target.className !== 'btn-remove-sec') { activeIdx = i; renderSidebar(); loadSectionToEditor(); } };
+            list.appendChild(btn);
+        });
+    }
+
+    function removeSection(e, i) {
+        e.stopPropagation();
+        if(!confirm("Delete this section?")) return;
+        sections.splice(i, 1);
+        if(activeIdx >= sections.length) activeIdx = sections.length - 1;
+        renderSidebar();
+        loadSectionToEditor();
+        calculateGlobal();
+    }
+
+    // --- EDITOR LOGIC ---
+    function updateGlobalShape() {
+        globalShape = document.getElementById('globalShape').value;
+        toggleShapeUI();
+        loadSectionToEditor();
+        calculateGlobal();
+    }
+
+    function toggleShapeUI() {
+        if(globalShape === 'rect') {
+            document.getElementById('rectDims').style.display = 'flex';
+            document.getElementById('roundDims').style.display = 'none';
+        } else {
+            document.getElementById('rectDims').style.display = 'none';
+            document.getElementById('roundDims').style.display = 'block';
+        }
+    }
+
+    function loadSectionToEditor() {
+        const sec = sections[activeIdx];
+        if(!sec) return;
+
+        document.getElementById('secNameInput').value = sec.name;
+        document.getElementById('activeSecName').innerText = `Editing: ${sec.name}`;
+        document.getElementById('flow').value = sec.flow;
+        document.getElementById('length').value = sec.length;
+        document.getElementById('material').value = sec.roughness;
+        
+        document.getElementById('width').value = sec.width;
+        document.getElementById('height').value = sec.height;
+        document.getElementById('diameter').value = sec.diameter;
+
+        toggleShapeUI(); 
+        renderFittingList();
+        calculateSectionPhysics(sec);
+        if(sec.results) displaySectionResults(sec.results);
+    }
+
+    function updateSecName() {
+        sections[activeIdx].name = document.getElementById('secNameInput').value;
+        renderSidebar();
+    }
+
+    function updateRoughness() {
+        sections[activeIdx].roughness = document.getElementById('material').value;
+    }
+
+    function saveCurrentSection() {
+        const sec = sections[activeIdx];
+        sec.flow = parseFloat(document.getElementById('flow').value) || 0;
+        sec.length = parseFloat(document.getElementById('length').value) || 0;
+        sec.width = parseFloat(document.getElementById('width').value) || 0;
+        sec.height = parseFloat(document.getElementById('height').value) || 0;
+        sec.diameter = parseFloat(document.getElementById('diameter').value) || 0;
+        
+        const results = calculateSectionPhysics(sec);
+        displaySectionResults(results);
+        calculateGlobal(); 
+    }
+
+    // --- PHYSICS ENGINE ---
+    function calculateSectionPhysics(sec) {
+        let Area, Dh;
+        
+        if(globalShape === 'rect') {
+            const w = sec.width/1000;
+            const h = sec.height/1000;
+            if(!w || !h) return null;
+            Area = w*h;
+            Dh = (2*w*h)/(w+h);
+        } else {
+            const d = sec.diameter/1000;
+            if(!d) return null;
+            Area = Math.PI * Math.pow(d/2, 2);
+            Dh = d;
+        }
+
+        const rho = 1.204;
+        const V = (sec.flow/1000) / Area;
+        const Pv = 0.5 * rho * Math.pow(V, 2);
+
+        const eps = parseFloat(sec.roughness)/1000;
+        const mu = 1.825e-5;
+        const Re = (rho * V * Dh) / mu;
+        let f = 0.02;
+        if(Re > 0) {
+            const t1 = eps/(3.7*Dh);
+            const t2 = 5.74/Math.pow(Re, 0.9);
+            f = 0.25 / Math.pow(Math.log10(t1+t2), 2);
+        }
+        
+        const Rate = (f/Dh)*Pv;
+        const FricLoss = Rate * sec.length;
+
+        let sumC = 0;
+        sec.fittings.forEach(fit => sumC += (fit.c * fit.qty));
+        const DynLoss = sumC * Pv;
+
+        const results = { V, Pv, Rate, FricLoss, DynLoss, Total: FricLoss + DynLoss };
+        sec.results = results;
+        return results;
+    }
+
+    function displaySectionResults(r) {
+        if(!r) {
+            ['dispVel','dispPv','dispRate','dispSecFric','dispSecDyn'].forEach(id => document.getElementById(id).innerText = "-");
+            return;
+        }
+        document.getElementById('dispVel').innerText = r.V.toFixed(2) + " m/s";
+        document.getElementById('dispPv').innerText = r.Pv.toFixed(1) + " Pa";
+        document.getElementById('dispRate').innerText = r.Rate.toFixed(1) + " Pa/m";
+        document.getElementById('dispSecFric').innerText = r.FricLoss.toFixed(1) + " Pa";
+        document.getElementById('dispSecDyn').innerText = r.DynLoss.toFixed(1) + " Pa";
+        
+        const warn = document.getElementById('velWarning');
+        warn.style.display = (r.V < 2.54) ? 'block' : 'none';
+    }
+
+    // --- FITTINGS ---
+    function addFitting() {
+        const sel = document.getElementById('fitSelect');
+        const data = JSON.parse(sel.value);
+        const item = fittingsDB[data.cat][data.idx];
+        
+        const qty = parseInt(document.getElementById('fitQty').value);
+        sections[activeIdx].fittings.push({ ...item, qty });
+        renderFittingList();
+        
+        const r = calculateSectionPhysics(sections[activeIdx]);
+        displaySectionResults(r);
+        calculateGlobal();
+    }
+
+    function removeFit(i) {
+        sections[activeIdx].fittings.splice(i, 1);
+        renderFittingList();
+        const r = calculateSectionPhysics(sections[activeIdx]);
+        displaySectionResults(r);
+        calculateGlobal();
+    }
+
+    function renderFittingList() {
+        const con = document.getElementById('fitList');
+        con.innerHTML = "";
+        sections[activeIdx].fittings.forEach((fit, i) => {
+            const div = document.createElement('div');
+            div.className = 'fit-item';
+            div.innerHTML = `<span>${fit.qty}x ${fit.name}</span> <button class="btn-del" onclick="removeFit(${i})">X</button>`;
+            con.appendChild(div);
+        });
+    }
+
+    // --- GLOBAL CALCULATION ---
+    function calculateGlobal() {
+        let totalFric = 0;
+        let totalDyn = 0;
+        
+        sections.forEach(sec => {
+            const r = calculateSectionPhysics(sec);
+            if(r) {
+                totalFric += r.FricLoss;
+                totalDyn += r.DynLoss;
+            }
+        });
+
+        let totalEquip = 0;
+        for(let i=1; i<=6; i++) {
+            totalEquip += parseFloat(document.getElementById('eqVal'+i).value) || 0;
+        }
+
+        const grandTotal = totalFric + totalDyn + totalEquip;
+        document.getElementById('globalTotal').innerText = grandTotal.toFixed(1) + " Pa";
+        return { totalFric, totalDyn, totalEquip, grandTotal };
+    }
+
+    // --- SAVE / LOAD SYSTEM ---
+    function saveProject() {
+        const projectData = {
+            version: "2.0",
+            timestamp: new Date().toISOString(),
+            info: {
+                projName: document.getElementById('projName').value,
+                ref: document.getElementById('circuitRef').value,
+                preparedBy: document.getElementById('preparedBy').value,
+                globalShape: globalShape
+            },
+            equipment: [],
+            sections: sections
+        };
+
+        for(let i=1; i<=6; i++) {
+            projectData.equipment.push({
+                name: document.getElementById('eqName'+i).value,
+                val: document.getElementById('eqVal'+i).value
+            });
+        }
+
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(projectData));
+        const anchor = document.createElement('a');
+        anchor.setAttribute("href", dataStr);
+        anchor.setAttribute("download", `ESP_Project_${projectData.info.ref}.json`);
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+    }
+
+    function triggerLoad() {
+        document.getElementById('loadInput').click();
+    }
+
+    function loadProject(input) {
+        const file = input.files[0];
+        if(!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                
+                document.getElementById('projName').value = data.info.projName || "";
+                document.getElementById('circuitRef').value = data.info.ref || "";
+                document.getElementById('preparedBy').value = data.info.preparedBy || "";
+                
+                globalShape = data.info.globalShape || "rect";
+                document.getElementById('globalShape').value = globalShape;
+                
+                if(data.equipment) {
+                    data.equipment.forEach((eq, i) => {
+                        if(i < 6) {
+                            document.getElementById(`eqName${i+1}`).value = eq.name;
+                            document.getElementById(`eqVal${i+1}`).value = eq.val;
+                        }
+                    });
+                }
+
+                sections = data.sections || [];
+                activeIdx = 0;
+                
+                toggleShapeUI();
+                renderSidebar();
+                loadSectionToEditor();
+                calculateGlobal();
+                
+                alert("Project Loaded Successfully!");
+            } catch(err) {
+                alert("Error loading file: " + err);
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    // --- PDF REPORT ---
+    function generateReport() {
+        const totals = calculateGlobal();
+        
+        document.getElementById('rptProjName').innerText = document.getElementById('projName').value;
+        document.getElementById('rptRef').innerText = document.getElementById('circuitRef').value;
+        document.getElementById('rptPrepared').innerText = "Prepared By: " + document.getElementById('preparedBy').value;
+        document.getElementById('rptDate').innerText = new Date().toLocaleString();
+
+        const body = document.getElementById('rptBody');
+        body.innerHTML = "";
+
+        sections.forEach((sec, i) => {
+            if(!sec.results) return;
+            const r = sec.results;
+            
+            const header = document.createElement('div');
+            header.className = 'rpt-sec-header';
+            header.innerHTML = `SECTION ${i+1}: ${sec.name}`;
+            body.appendChild(header);
+
+            const tbl = document.createElement('table');
+            tbl.className = 'rpt-table';
+            const dims = globalShape === 'rect' ? `${sec.width}x${sec.height}` : `Ø${sec.diameter}`;
+            let fitStr = sec.fittings.map(f => `${f.qty}x ${f.name}`).join(', ') || "None";
+
+            tbl.innerHTML = `
+                <tr>
+                    <td><b>Flow:</b> ${sec.flow} L/s</td>
+                    <td><b>Size:</b> ${dims} mm</td>
+                    <td><b>Length:</b> ${sec.length} m</td>
+                    <td><b>Velocity:</b> ${r.V.toFixed(2)} m/s</td>
+                </tr>
+                <tr>
+                    <td><b>Pv:</b> ${r.Pv.toFixed(1)} Pa</td>
+                    <td><b>Rate:</b> ${r.Rate.toFixed(2)} Pa/m</td>
+                    <td><b>Friction:</b> ${r.FricLoss.toFixed(1)} Pa</td>
+                    <td><b>Dynamic:</b> ${r.DynLoss.toFixed(1)} Pa</td>
+                </tr>
+                <tr><td colspan="4" style="font-size:9pt; color:#555;"><i>Fittings: ${fitStr}</i></td></tr>
+            `;
+            body.appendChild(tbl);
+        });
+
+        const eqBody = document.getElementById('rptEquipBody');
+        eqBody.innerHTML = "";
+        for(let i=1; i<=6; i++) {
+            const n = document.getElementById('eqName'+i).value;
+            const v = document.getElementById('eqVal'+i).value;
+            if(n || v) {
+                eqBody.innerHTML += `<tr><td>${n || 'Equipment'}</td><td width="30%" align="right">${v || 0} Pa</td></tr>`;
+            }
+        }
+
+        document.getElementById('rptSumFric').innerText = totals.totalFric.toFixed(1) + " Pa";
+        document.getElementById('rptSumDyn').innerText = totals.totalDyn.toFixed(1) + " Pa";
+        document.getElementById('rptSumEquip').innerText = totals.totalEquip.toFixed(1) + " Pa";
+        document.getElementById('rptSumTotal').innerText = totals.grandTotal.toFixed(1) + " Pa";
+
+        const overlay = document.getElementById('pdf-overlay');
+        overlay.style.display = 'flex';
+        
+        const elem = document.getElementById('printTemplate');
+        const opt = {
+            margin: 0,
+            filename: `Critical_Circuit_${document.getElementById('circuitRef').value}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(elem).save().then(() => {
+            overlay.style.display = 'none';
+        }).catch((err) => {
+             console.error(err);
+             overlay.style.display = 'none';
+        });
+    }
+</script>
+
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(registration => console.log('ServiceWorker registered'))
+                .catch(err => console.log('ServiceWorker registration failed: ', err));
+        });
+    }
+</script>
+
+</body>
+</html>
