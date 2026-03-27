@@ -130,10 +130,6 @@
         }
         .hfield input:focus, .hfield select:focus { outline: none; border-color: var(--blue); }
 
-        .shape-toggle { display: flex; background: var(--s2); border: 1px solid var(--border); border-radius: var(--r1); overflow: hidden; }
-        .shape-btn { padding: 5px 13px; background: transparent; border: none; color: var(--t3); font-size: 0.78rem; font-family: var(--fui); font-weight: 600; cursor: pointer; transition: all 0.18s; white-space: nowrap; }
-        .shape-btn.active { background: var(--blue); color: white; }
-
         .header-actions { display: flex; gap: 8px; margin-left: auto; flex-shrink: 0; }
         .btn-hdr {
             display: flex; align-items: center; gap: 5px; justify-content: center;
@@ -366,7 +362,7 @@
         .rpt-summary-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 10pt; color: #475569; }
         .rpt-summary-total { display: flex; justify-content: space-between; padding-top: 12px; margin-top: 12px; border-top: 2px solid #cbd5e1; font-size: 14pt; font-weight: 800; color: #0f172a; }
 
-        #loadInput, #globalShape { display: none; }
+        #loadInput { display: none; }
 
         /* ─────────────────────────────────────────────
            MOBILE & TABLET RESPONSIVENESS
@@ -431,13 +427,6 @@
             <label>Prepared By</label>
             <input type="text" id="preparedBy" value="Engineer">
         </div>
-        <div class="hfield">
-            <label>Duct Shape</label>
-            <div class="shape-toggle">
-                <button class="shape-btn active" id="shapeRect" onclick="setShape('rect')">Rectangular</button>
-                <button class="shape-btn" id="shapeRound" onclick="setShape('round')">Round</button>
-            </div>
-        </div>
     </div>
 
     <div class="header-actions">
@@ -446,8 +435,6 @@
         <button class="btn-hdr" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
         <input type="file" id="loadInput" accept=".json" onchange="loadProject(this)">
     </div>
-
-    <select id="globalShape" onchange="updateGlobalShape()"></select>
 </header>
 
 <div class="app-shell">
@@ -471,6 +458,36 @@
             <input type="text" id="secNameInput" placeholder="Rename section…" onchange="updateSecName()">
         </div>
 
+        <div class="card" style="margin-bottom: 18px;">
+            <div class="card-hd">
+                <div class="card-ico">🏗️</div>
+                <div class="card-title">Duct Construction (Global)</div>
+                <span class="card-tag">Applies to entire circuit</span>
+            </div>
+            <div class="card-bd">
+                <div class="frow">
+                    <div class="fgrp" style="margin-bottom:0">
+                        <div class="flabel">Duct Shape</div>
+                        <select id="globalShape" onchange="updateGlobalShape()">
+                            <option value="rect">Rectangular Duct</option>
+                            <option value="round">Round Duct</option>
+                        </select>
+                    </div>
+                    <div class="fgrp" style="margin-bottom:0">
+                        <div class="flabel">Material / Roughness</div>
+                        <select id="globalMaterial" onchange="updateGlobalMaterial()">
+                            <option value="" disabled selected>Select Duct Material...</option>
+                            <option value="0.09">Galvanized Steel  (ε = 0.09 mm)</option>
+                            <option value="0.12">Kitchen Black Steel  (ε = 0.12 mm)</option>
+                            <option value="1.5">Flexible Duct  (ε = 1.5 mm)</option>
+                            <option value="0.05">Aluminium / Stainless Steel  (ε = 0.05 mm)</option>
+                            <option value="3.0">Concrete Shaft  (ε = 3.0 mm)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="ed-grid">
 
             <div>
@@ -484,14 +501,14 @@
                             <div class="fgrp">
                                 <div class="flabel">Airflow</div>
                                 <div class="iwrap">
-                                    <input type="number" id="flow" oninput="saveCurrentSection()">
+                                    <input type="number" id="flow" oninput="saveCurrentSection()" placeholder="0">
                                     <span class="iunit">L/s</span>
                                 </div>
                             </div>
                             <div class="fgrp">
                                 <div class="flabel">Length</div>
                                 <div class="iwrap">
-                                    <input type="number" id="length" oninput="saveCurrentSection()">
+                                    <input type="number" id="length" oninput="saveCurrentSection()" placeholder="0">
                                     <span class="iunit">m</span>
                                 </div>
                             </div>
@@ -524,17 +541,6 @@
                                     <span class="iunit">mm</span>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="fgrp" style="margin-bottom:0">
-                            <div class="flabel">Material / Roughness</div>
-                            <select id="material" onchange="updateRoughness(); saveCurrentSection();">
-                                <option value="0.09">Galvanized Steel  (ε = 0.09 mm)</option>
-                                <option value="0.12">Kitchen Black Steel  (ε = 0.12 mm)</option>
-                                <option value="1.5">Flexible Duct  (ε = 1.5 mm)</option>
-                                <option value="0.05">Aluminium / Stainless Steel  (ε = 0.05 mm)</option>
-                                <option value="3.0">Concrete Shaft  (ε = 3.0 mm)</option>
-                            </select>
                         </div>
                     </div>
                 </div>
@@ -707,7 +713,7 @@
 
         <div style="font-size:8pt; text-align:center; color:#94a3b8; margin-top:25px;">
             Calculations performed in accordance with ASHRAE Fundamentals (SI Units).<br>
-            Standard Air Density: 1.204 kg/m³. Friction Factor: Swamee-Jain Approximation.
+            Standard Air Density: 1.204 kg/m³ | Base Material: <span id="rptMat"></span> (<span id="rptRough"></span>)
         </div>
     </div>
 </div>
@@ -788,9 +794,10 @@
     // ────────────────────────────────────────
     // STATE
     // ────────────────────────────────────────
-    let sections    = [];
-    let activeIdx   = 0;
-    let globalShape = 'rect';
+    let sections       = [];
+    let activeIdx      = 0;
+    let globalShape    = 'rect';
+    let globalMaterial = ''; // New global setting
 
     // ────────────────────────────────────────
     // INIT
@@ -818,22 +825,19 @@
     }
 
     // ────────────────────────────────────────
-    // SHAPE MANAGEMENT
+    // GLOBAL SETTINGS MANAGEMENT
     // ────────────────────────────────────────
-    function setShape(shape) {
-        globalShape = shape;
-        document.getElementById('globalShape').value = shape;
-        document.getElementById('shapeRect').classList.toggle('active', shape === 'rect');
-        document.getElementById('shapeRound').classList.toggle('active', shape === 'round');
-        toggleShapeUI();
-        calculateGlobal();
-    }
-
     function updateGlobalShape() {
         globalShape = document.getElementById('globalShape').value;
         toggleShapeUI();
         loadSectionToEditor();
         calculateGlobal();
+    }
+
+    function updateGlobalMaterial() {
+        globalMaterial = document.getElementById('globalMaterial').value;
+        calculateGlobal();
+        loadSectionToEditor();
     }
 
     function toggleShapeUI() {
@@ -867,9 +871,9 @@
         const newSec = {
             id: Date.now(),
             name: `Section ${sections.length + 1}`,
-            flow: 1000, length: 10,
-            width: 500, height: 400,
-            diameter: 300, roughness: 0.09,
+            flow: '', length: '',
+            width: '', height: '',
+            diameter: '',
             fittings: []
         };
         sections.push(newSec);
@@ -930,7 +934,6 @@
         document.getElementById('secNameInput').value      = sec.name;
         document.getElementById('flow').value              = sec.flow;
         document.getElementById('length').value            = sec.length;
-        document.getElementById('material').value          = sec.roughness;
         document.getElementById('width').value             = sec.width;
         document.getElementById('height').value            = sec.height;
         document.getElementById('diameter').value          = sec.diameter;
@@ -938,7 +941,7 @@
         toggleShapeUI();
         renderFittingList();
         calculateSectionPhysics(sec);
-        if (sec.results) displaySectionResults(sec.results);
+        displaySectionResults(sec.results); // Will handle warnings if missing
     }
 
     function updateSecName() {
@@ -947,17 +950,13 @@
         renderSidebar();
     }
 
-    function updateRoughness() {
-        sections[activeIdx].roughness = document.getElementById('material').value;
-    }
-
     function saveCurrentSection() {
         const sec = sections[activeIdx];
-        sec.flow      = parseFloat(document.getElementById('flow').value)     || 0;
-        sec.length    = parseFloat(document.getElementById('length').value)   || 0;
-        sec.width     = parseFloat(document.getElementById('width').value)    || 0;
-        sec.height    = parseFloat(document.getElementById('height').value)   || 0;
-        sec.diameter  = parseFloat(document.getElementById('diameter').value) || 0;
+        sec.flow      = document.getElementById('flow').value;
+        sec.length    = document.getElementById('length').value;
+        sec.width     = document.getElementById('width').value;
+        sec.height    = document.getElementById('height').value;
+        sec.diameter  = document.getElementById('diameter').value;
 
         const r = calculateSectionPhysics(sec);
         displaySectionResults(r);
@@ -968,26 +967,36 @@
     // PHYSICS ENGINE
     // ────────────────────────────────────────
     function calculateSectionPhysics(sec) {
+        if (!globalMaterial) return null;
+
+        const flow = parseFloat(sec.flow);
+        const len  = parseFloat(sec.length);
+
+        if (isNaN(flow) || isNaN(len)) return null;
+
         let Area, Dh;
 
         if (globalShape === 'rect') {
-            const w = sec.width  / 1000;
-            const h = sec.height / 1000;
-            if (!w || !h) return null;
+            const w = parseFloat(sec.width)  / 1000;
+            const h = parseFloat(sec.height) / 1000;
+            if (!w || !h || isNaN(w) || isNaN(h)) return null;
             Area = w * h;
             Dh   = (2 * w * h) / (w + h);
         } else {
-            const d = sec.diameter / 1000;
-            if (!d) return null;
+            const d = parseFloat(sec.diameter) / 1000;
+            if (!d || isNaN(d)) return null;
             Area = Math.PI * Math.pow(d / 2, 2);
             Dh   = d;
         }
 
         const rho = 1.204;
-        const V   = (sec.flow / 1000) / Area;
+        const V   = (flow / 1000) / Area;
+        
+        if(isNaN(V) || !isFinite(V)) return null;
+
         const Pv  = 0.5 * rho * Math.pow(V, 2);
 
-        const eps = parseFloat(sec.roughness) / 1000;
+        const eps = parseFloat(globalMaterial) / 1000;
         const mu  = 1.825e-5;
         const Re  = (rho * V * Dh) / mu;
         let f = 0.02;
@@ -998,7 +1007,7 @@
         }
 
         const Rate     = (f / Dh) * Pv;
-        const FricLoss = Rate * sec.length;
+        const FricLoss = Rate * len;
 
         let sumC = 0;
         sec.fittings.forEach(fit => { sumC += fit.c * fit.qty; });
@@ -1010,9 +1019,26 @@
     }
 
     function displaySectionResults(r) {
+        const dot  = document.getElementById('velDot');
+        const warn = document.getElementById('velWarning');
+
+        if (!globalMaterial) {
+            ['dispVel','dispPv','dispRate','dispSecFric'].forEach(id => document.getElementById(id).innerText = '—');
+            document.getElementById('dispSecDyn').innerText = '— Pa';
+            dot.className = 'vel-dot bad';
+            warn.innerText = '⚠ Please select a Duct Material in Construction settings.';
+            warn.style.color = 'var(--red)';
+            warn.style.display = 'block';
+            return;
+        }
+
         if (!r) {
             ['dispVel','dispPv','dispRate','dispSecFric'].forEach(id => document.getElementById(id).innerText = '—');
             document.getElementById('dispSecDyn').innerText = '— Pa';
+            dot.className = 'vel-dot warn';
+            warn.innerText = '⚠ Enter airflow and dimensions to calculate.';
+            warn.style.color = 'var(--amber)';
+            warn.style.display = 'block';
             return;
         }
 
@@ -1022,8 +1048,6 @@
         document.getElementById('dispSecFric').innerText = r.FricLoss.toFixed(1) + ' Pa';
         document.getElementById('dispSecDyn').innerText  = r.DynLoss.toFixed(1)  + ' Pa';
 
-        const dot  = document.getElementById('velDot');
-        const warn = document.getElementById('velWarning');
         if (r.V < 2.54) {
             dot.className = 'vel-dot warn';
             warn.innerText = '⚠  Low velocity (< 2.5 m/s) — consider reducing duct size';
@@ -1127,7 +1151,8 @@
                 projName:    document.getElementById('projName').value,
                 ref:         document.getElementById('circuitRef').value,
                 preparedBy:  document.getElementById('preparedBy').value,
-                globalShape
+                globalShape: globalShape,
+                globalMaterial: globalMaterial
             },
             equipment: [],
             sections
@@ -1167,7 +1192,11 @@
 
                 globalShape = data.info.globalShape || 'rect';
                 document.getElementById('globalShape').value = globalShape;
-                setShape(globalShape);
+                
+                globalMaterial = data.info.globalMaterial || '';
+                document.getElementById('globalMaterial').value = globalMaterial;
+                
+                setShape(globalShape); // also triggers toggleShapeUI and calculations
 
                 if (data.equipment) {
                     data.equipment.forEach((eq, i) => {
@@ -1274,6 +1303,12 @@
         if(!hasEq) {
             eqBody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:#94a3b8; font-style:italic;">No global equipment specified.</td></tr>`;
         }
+
+        // Material Details
+        const matSel = document.getElementById('globalMaterial');
+        const matText = globalMaterial ? matSel.options[matSel.selectedIndex].text.split('  (')[0] : 'Not Selected';
+        document.getElementById('rptMat').innerText = matText;
+        document.getElementById('rptRough').innerText = globalMaterial ? `ε = ${globalMaterial} mm` : '—';
 
         // Populate Totals
         document.getElementById('rptSumFric').innerText  = totals.totalFric.toFixed(1)  + ' Pa';
