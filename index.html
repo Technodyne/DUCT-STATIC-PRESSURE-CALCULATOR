@@ -17,14 +17,14 @@
 
     <style>
         /* ─────────────────────────────────────────────
-           DESIGN TOKENS (Light Theme Default - Claude Style)
+           DESIGN TOKENS (Light Theme Default)
         ───────────────────────────────────────────── */
         :root {
-            --bg:        #f9f8f6; /* Claude UI Background */
-            --s0:        #f0efeb; /* Sidebar bg */
-            --s1:        #ffffff; /* Card bg */
-            --s2:        #ffffff; /* Inputs */
-            --s3:        #f4f4f0; /* Active / Focus */
+            --bg:        #f9f8f6;
+            --s0:        #f0efeb;
+            --s1:        #ffffff;
+            --s2:        #ffffff;
+            --s3:        #f4f4f0;
             --s4:        #e5e5e0;
 
             --border:    #e5e5e0;
@@ -42,10 +42,10 @@
             --red:       #dc2626;
             --pink:      #db2777;
 
-            --t1: #111827; /* Main text */
-            --t2: #374151; /* Secondary text */
-            --t3: #6b7280; /* Labels */
-            --t4: #9ca3af; /* Subtle */
+            --t1: #111827;
+            --t2: #374151;
+            --t3: #6b7280;
+            --t4: #9ca3af;
 
             --fui:  'DM Sans', sans-serif;
             --fhd:  'Rajdhani', sans-serif;
@@ -95,13 +95,8 @@
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: var(--fui);
-            background: var(--bg);
-            color: var(--t1);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            font-family: var(--fui); background: var(--bg); color: var(--t1);
+            height: 100vh; display: flex; flex-direction: column; overflow: hidden;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
@@ -109,25 +104,15 @@
            HEADER
         ───────────────────────────────────────────── */
         .app-header {
-            height: var(--header-h);
-            background: var(--s1);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            padding: 0 18px;
-            gap: 16px;
-            flex-shrink: 0;
-            z-index: 100;
+            height: var(--header-h); background: var(--s1); border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; padding: 0 18px; gap: 16px; flex-shrink: 0; z-index: 100;
         }
 
         .logo { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
         .logo-mark {
-            width: 34px; height: 34px;
-            background: linear-gradient(135deg, var(--blue-dim), var(--blue));
-            border-radius: var(--r2);
-            display: flex; align-items: center; justify-content: center;
-            font-family: var(--fhd); font-weight: 700; font-size: 13px;
-            color: white; letter-spacing: 0.5px; flex-shrink: 0;
+            width: 34px; height: 34px; background: linear-gradient(135deg, var(--blue-dim), var(--blue));
+            border-radius: var(--r2); display: flex; align-items: center; justify-content: center;
+            font-family: var(--fhd); font-weight: 700; font-size: 13px; color: white; letter-spacing: 0.5px; flex-shrink: 0;
         }
 
         .logo-text { font-family: var(--fhd); font-weight: 700; font-size: 1.1rem; color: var(--t1); letter-spacing: 0.4px; line-height: 1.1; }
@@ -154,8 +139,7 @@
             display: flex; align-items: center; gap: 5px; justify-content: center;
             padding: 5px 13px; border-radius: var(--r1);
             font-size: 0.78rem; font-weight: 600; font-family: var(--fui); cursor: pointer;
-            transition: all 0.18s; border: 1px solid var(--border);
-            background: var(--s2); color: var(--t2);
+            transition: all 0.18s; border: 1px solid var(--border); background: var(--s2); color: var(--t2);
         }
 
         .btn-hdr:hover { background: var(--s3); color: var(--t1); border-color: var(--border-hi); }
@@ -170,8 +154,7 @@
         .app-shell { flex: 1; display: flex; overflow: hidden; }
         
         .sidebar {
-            width: var(--sidebar-w); background: var(--s0);
-            border-right: 1px solid var(--border);
+            width: var(--sidebar-w); background: var(--s0); border-right: 1px solid var(--border);
             display: flex; flex-direction: column; flex-shrink: 0;
         }
 
@@ -192,8 +175,7 @@
         .sb-list::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 2px; }
 
         .sec-card {
-            padding: 10px 12px 9px; border-radius: var(--r2);
-            border: 1px solid transparent; cursor: pointer;
+            padding: 10px 12px 9px; border-radius: var(--r2); border: 1px solid transparent; cursor: pointer;
             transition: all 0.14s; margin-bottom: 3px; position: relative;
         }
         .sec-card:hover { background: var(--s2); border-color: var(--border); }
@@ -334,7 +316,7 @@
         .btn-pdf:hover { background: linear-gradient(135deg, #8b5cf6, #6d28d9); box-shadow: 0 4px 20px rgba(124,58,237,0.35); transform: translateY(-1px); }
 
         /* ─────────────────────────────────────────────
-           TOAST & PDF
+           TOAST
         ───────────────────────────────────────────── */
         .toast-wrap { position: fixed; bottom: 86px; right: 22px; display: flex; flex-direction: column; gap: 7px; z-index: 9998; }
         .toast { background: var(--s2); border: 1px solid var(--border-hi); color: var(--t1); padding: 9px 14px; border-radius: var(--r2); font-size: 0.82rem; box-shadow: 0 8px 32px rgba(0,0,0,0.5); animation: tIn 0.25s ease; display: flex; align-items: center; gap: 7px; }
@@ -342,12 +324,47 @@
         .toast.err { border-color: var(--red); }
         @keyframes tIn { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: translateX(0); } }
 
-        #pdf-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.88); z-index: 9999; justify-content: center; overflow: auto; padding-top: 20px; }
-        #printTemplate { width: 210mm; min-height: 297mm; background: white; padding: 15mm; font-family: 'Times New Roman', serif; box-sizing: border-box; margin: auto; color: #000; }
-        .rpt-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 10pt; }
-        .rpt-table th, .rpt-table td { border: 1px solid #000; padding: 5px; text-align: left; }
-        .rpt-table th { background: #f0f0f0; }
-        .rpt-sec-header { background: #e9ecef; font-weight: bold; padding: 5px; margin-top: 10px; border: 1px solid #000; border-bottom: none; }
+        /* ─────────────────────────────────────────────
+           TOP-CLASS PROFESSIONAL PDF REPORT STYLING
+        ───────────────────────────────────────────── */
+        #pdf-overlay {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.88);
+            z-index: 9999; justify-content: center; overflow: auto; padding-top: 20px;
+        }
+
+        #printTemplate {
+            width: 210mm; min-height: 297mm;
+            background: white; padding: 15mm 20mm;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            box-sizing: border-box; margin: auto; color: #1e293b;
+        }
+
+        .rpt-header-wrapper {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            border-bottom: 3px solid #1e293b; padding-bottom: 15px; margin-bottom: 25px;
+        }
+
+        .rpt-title { font-size: 22pt; font-weight: 800; color: #0f172a; letter-spacing: -0.5px; margin: 0; }
+        .rpt-subtitle { font-size: 10pt; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+        
+        .rpt-meta { text-align: right; font-size: 9pt; color: #475569; line-height: 1.5; }
+        .rpt-meta strong { color: #1e293b; }
+
+        .rpt-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 9.5pt; }
+        .rpt-table th { background: #f8fafc; color: #475569; font-size: 8pt; text-transform: uppercase; letter-spacing: 0.5px; padding: 10px 8px; border-bottom: 2px solid #cbd5e1; text-align: left; }
+        .rpt-table td { padding: 10px 8px; border-bottom: 1px solid #e2e8f0; color: #334155; }
+        .rpt-table tr:last-child td { border-bottom: none; }
+
+        .rpt-sec-box { margin-bottom: 20px; border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden; page-break-inside: avoid; }
+        .rpt-sec-header { background: #f1f5f9; padding: 10px 15px; font-weight: 700; color: #0f172a; font-size: 10pt; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; }
+        
+        .rpt-summary-box {
+            background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #2563eb;
+            padding: 20px; margin-top: 30px; page-break-inside: avoid;
+        }
+        .rpt-summary-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 10pt; color: #475569; }
+        .rpt-summary-total { display: flex; justify-content: space-between; padding-top: 12px; margin-top: 12px; border-top: 2px solid #cbd5e1; font-size: 14pt; font-weight: 800; color: #0f172a; }
 
         #loadInput, #globalShape { display: none; }
 
@@ -642,34 +659,55 @@
 
 <div id="pdf-overlay">
     <div id="printTemplate">
-        <div style="border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:20px; display:flex; justify-content:space-between;">
+        <div class="rpt-header-wrapper">
             <div>
-                <h1 style="margin:0; font-size:20pt; color:#0056b3;">Critical Circuit Analysis</h1>
-                <div style="font-size:11pt;">ASHRAE Darcy-Weisbach Method</div>
+                <h1 class="rpt-title">CRITICAL CIRCUIT ANALYSIS</h1>
+                <div class="rpt-subtitle">Static Pressure Calculation Report</div>
             </div>
-            <div style="text-align:right;">
-                <div id="rptProjName" style="font-weight:bold;">-</div>
-                <div id="rptRef">-</div>
-                <div id="rptPrepared" style="font-size:10pt;">-</div>
-                <div id="rptDate" style="font-size:9pt; color:#666;">-</div>
+            <div class="rpt-meta">
+                <div><strong>Project:</strong> <span id="rptProjName">-</span></div>
+                <div><strong>Reference:</strong> <span id="rptRef">-</span></div>
+                <div><strong>Prepared By:</strong> <span id="rptPrepared">-</span></div>
+                <div><strong>Date:</strong> <span id="rptDate">-</span></div>
             </div>
         </div>
+
         <div id="rptBody"></div>
-        <div style="margin-top:20px; page-break-inside:avoid;">
-            <div style="font-weight:bold; background:#eee; padding:5px; border:1px solid #000;">EQUIPMENT &amp; TOTALS</div>
-            <table class="rpt-table"><tbody id="rptEquipBody"></tbody></table>
-            <div style="border:2px solid #000; padding:15px; margin-top:10px;">
-                <table style="width:100%;">
-                    <tr><td>Sum of Section Friction:</td><td align="right" id="rptSumFric">0 Pa</td></tr>
-                    <tr><td>Sum of Section Fittings:</td><td align="right" id="rptSumDyn">0 Pa</td></tr>
-                    <tr><td>Sum of Equipment:</td><td align="right" id="rptSumEquip">0 Pa</td></tr>
-                    <tr><td colspan="2"><hr></td></tr>
-                    <tr><td style="font-size:16pt; font-weight:bold;">TOTAL CIRCUIT ESP:</td><td align="right" style="font-size:16pt; font-weight:bold;" id="rptSumTotal">0 Pa</td></tr>
-                </table>
+
+        <div class="rpt-sec-box" style="margin-top: 30px;">
+            <div class="rpt-sec-header">
+                <span>GLOBAL SYSTEM EQUIPMENT</span>
             </div>
-            <div style="font-size:8pt; text-align:center; color:#666; margin-top:20px;">
-                Calculated per ASHRAE Fundamentals. Air Density 1.204 kg/m³. Swamee-Jain Friction Factor.
+            <table class="rpt-table" style="margin-bottom:0;">
+                <thead>
+                    <tr><th>Item Description</th><th style="text-align:right;">Pressure Drop (Pa)</th></tr>
+                </thead>
+                <tbody id="rptEquipBody"></tbody>
+            </table>
+        </div>
+
+        <div class="rpt-summary-box">
+            <div class="rpt-summary-row">
+                <span>Sum of Straight Duct Friction</span>
+                <span id="rptSumFric">0.0 Pa</span>
             </div>
+            <div class="rpt-summary-row">
+                <span>Sum of Dynamic Fittings Loss</span>
+                <span id="rptSumDyn">0.0 Pa</span>
+            </div>
+            <div class="rpt-summary-row">
+                <span>Sum of Equipment Fixed Drops</span>
+                <span id="rptSumEquip">0.0 Pa</span>
+            </div>
+            <div class="rpt-summary-total">
+                <span>TOTAL EXTERNAL STATIC PRESSURE</span>
+                <span id="rptSumTotal">0.0 Pa</span>
+            </div>
+        </div>
+
+        <div style="font-size:8pt; text-align:center; color:#94a3b8; margin-top:25px;">
+            Calculations performed in accordance with ASHRAE Fundamentals (SI Units).<br>
+            Standard Air Density: 1.204 kg/m³. Friction Factor: Swamee-Jain Approximation.
         </div>
     </div>
 </div>
@@ -1156,80 +1194,110 @@
     }
 
     // ────────────────────────────────────────
-    // PDF REPORT
+    // TOP CLASS PROFESSIONAL PDF REPORT GENERATION
     // ────────────────────────────────────────
     function generateReport() {
         const totals = calculateGlobal();
 
-        document.getElementById('rptProjName').innerText  = document.getElementById('projName').value;
-        document.getElementById('rptRef').innerText       = document.getElementById('circuitRef').value;
-        document.getElementById('rptPrepared').innerText  = 'Prepared By: ' + document.getElementById('preparedBy').value;
-        document.getElementById('rptDate').innerText      = new Date().toLocaleString();
+        // Populate Header Meta
+        document.getElementById('rptProjName').innerText = document.getElementById('projName').value || 'Untitled Project';
+        document.getElementById('rptRef').innerText      = document.getElementById('circuitRef').value || 'N/A';
+        document.getElementById('rptPrepared').innerText = document.getElementById('preparedBy').value || 'N/A';
+        document.getElementById('rptDate').innerText     = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
         const body = document.getElementById('rptBody');
         body.innerHTML = '';
 
+        // Populate Sections
         sections.forEach((sec, i) => {
             if (!sec.results) return;
             const r = sec.results;
 
-            const hdr = document.createElement('div');
-            hdr.className = 'rpt-sec-header';
-            hdr.innerHTML = `SECTION ${i+1}: ${sec.name}`;
-            body.appendChild(hdr);
-
-            const tbl = document.createElement('table');
-            tbl.className = 'rpt-table';
             const dims   = globalShape === 'rect' ? `${sec.width}×${sec.height}` : `Ø${sec.diameter}`;
-            const fitStr = sec.fittings.map(f => `${f.qty}× ${f.name}`).join(', ') || 'None';
+            const fitStr = sec.fittings.map(f => `<strong>${f.qty}×</strong> ${f.name}`).join(', ') || '<span style="color:#94a3b8;">None</span>';
 
-            tbl.innerHTML = `
-                <tr>
-                    <td><b>Flow:</b> ${sec.flow} L/s</td>
-                    <td><b>Size:</b> ${dims} mm</td>
-                    <td><b>Length:</b> ${sec.length} m</td>
-                    <td><b>Velocity:</b> ${r.V.toFixed(2)} m/s</td>
-                </tr>
-                <tr>
-                    <td><b>Pv:</b> ${r.Pv.toFixed(1)} Pa</td>
-                    <td><b>Rate:</b> ${r.Rate.toFixed(2)} Pa/m</td>
-                    <td><b>Friction:</b> ${r.FricLoss.toFixed(1)} Pa</td>
-                    <td><b>Dynamic:</b> ${r.DynLoss.toFixed(1)} Pa</td>
-                </tr>
-                <tr><td colspan="4" style="font-size:9pt; color:#555;"><i>Fittings: ${fitStr}</i></td></tr>
+            const secBox = document.createElement('div');
+            secBox.className = 'rpt-sec-box';
+            
+            secBox.innerHTML = `
+                <div class="rpt-sec-header">
+                    <span>SECTION ${String(i+1).padStart(2, '0')}</span>
+                    <span style="color:#64748b; font-weight:600;">${sec.name}</span>
+                </div>
+                <table class="rpt-table" style="margin-bottom:0;">
+                    <tr>
+                        <th>Airflow</th>
+                        <th>Dimensions</th>
+                        <th>Length</th>
+                        <th>Velocity</th>
+                    </tr>
+                    <tr>
+                        <td>${sec.flow} L/s</td>
+                        <td>${dims} mm</td>
+                        <td>${sec.length} m</td>
+                        <td>${r.V.toFixed(2)} m/s</td>
+                    </tr>
+                    <tr>
+                        <th>Vel. Pressure (Pv)</th>
+                        <th>Friction Rate</th>
+                        <th>Friction Loss</th>
+                        <th>Dynamic Loss</th>
+                    </tr>
+                    <tr>
+                        <td>${r.Pv.toFixed(1)} Pa</td>
+                        <td>${r.Rate.toFixed(2)} Pa/m</td>
+                        <td>${r.FricLoss.toFixed(1)} Pa</td>
+                        <td>${r.DynLoss.toFixed(1)} Pa</td>
+                    </tr>
+                    <tr style="background:#f8fafc;">
+                        <td colspan="4" style="font-size:8.5pt; color:#475569; padding:12px 10px;">
+                            <strong style="color:#0f172a;">FITTINGS:</strong> ${fitStr}
+                        </td>
+                    </tr>
+                </table>
             `;
-            body.appendChild(tbl);
+            body.appendChild(secBox);
         });
 
+        // Populate Equipment
         const eqBody = document.getElementById('rptEquipBody');
         eqBody.innerHTML = '';
+        let hasEq = false;
         for (let i = 1; i <= 6; i++) {
             const n = document.getElementById('eqName' + i).value;
             const v = document.getElementById('eqVal'  + i).value;
             if (n || v) {
-                eqBody.innerHTML += `<tr><td>${n || 'Equipment'}</td><td width="30%" align="right">${v || 0} Pa</td></tr>`;
+                hasEq = true;
+                eqBody.innerHTML += `<tr><td>${n || 'Unspecified Equipment'}</td><td width="30%" align="right" style="font-weight:600;">${parseFloat(v || 0).toFixed(1)} Pa</td></tr>`;
             }
         }
+        if(!hasEq) {
+            eqBody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:#94a3b8; font-style:italic;">No global equipment specified.</td></tr>`;
+        }
 
+        // Populate Totals
         document.getElementById('rptSumFric').innerText  = totals.totalFric.toFixed(1)  + ' Pa';
         document.getElementById('rptSumDyn').innerText   = totals.totalDyn.toFixed(1)   + ' Pa';
         document.getElementById('rptSumEquip').innerText = totals.totalEquip.toFixed(1) + ' Pa';
         document.getElementById('rptSumTotal').innerText = totals.grandTotal.toFixed(1) + ' Pa';
 
+        // Trigger PDF Download
         const overlay = document.getElementById('pdf-overlay');
         overlay.style.display = 'flex';
 
-        const opt = {
-            margin: 0,
-            filename: `Critical_Circuit_${document.getElementById('circuitRef').value}.pdf`,
-            image:    { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF:    { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
+        setTimeout(() => {
+            const opt = {
+                margin: 0,
+                filename: `Critical_Circuit_${document.getElementById('circuitRef').value}.pdf`,
+                image:    { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 2, scrollY: 0, windowY: 0 }, 
+                jsPDF:    { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
 
-        html2pdf().set(opt).from(document.getElementById('printTemplate')).save()
-            .then(() => { overlay.style.display = 'none'; })
-            .catch(err => { console.error(err); overlay.style.display = 'none'; });
+            html2pdf().set(opt).from(document.getElementById('printTemplate')).save()
+                .then(() => { overlay.style.display = 'none'; })
+                .catch(err => { console.error(err); overlay.style.display = 'none'; });
+        }, 150);
     }
 </script>
 
